@@ -1,0 +1,67 @@
+*{
+    background-color:#f2f4f6;
+
+
+
+
+   
+}
+
+.col .T-Facturacion{
+    font-size:3rem;
+    font-weight: bold;
+    color: #002169;
+
+
+}
+#selectPlanet {
+    /* Agregar estilos CSS personalizados */
+    width:100%;
+    padding: 10px;
+    border: 1px solid #e5e0e0;
+    border-radius: 25px;
+    background-color: #f1e3e3;
+    color: #333;
+    font-size: 16px;
+  }
+  
+  #SelectPlanet:focus {
+    /* Estilos al enfocar */
+    border-color: #040404;
+    outline: 0;
+  }
+  #selectDimension {
+    /* Agregar estilos CSS personalizados */
+    width:100%;
+    padding: 10px;
+    border: 1px solid #e5e0e0;
+    border-radius: 25px;
+    background-color: #f1e3e3;
+    color: #333;
+    font-size: 16px;
+  }
+  
+  #selectDimension:focus {
+    /* Estilos al enfocar */
+    border-color: #040404;
+    outline: 0;
+  }
+
+
+ .texto{
+    color: #002169!important;
+  }
+
+  
+.btn-facturar{
+  color: white;
+  font-weight: bold;
+  background-color: #ff671b;
+}
+.texto card-title:hover{
+  color:rebeccapurple!important ;
+}
+.listaCard{
+  margin-right: 100px;
+  background-color: red!important;
+}

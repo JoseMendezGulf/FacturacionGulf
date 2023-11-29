@@ -1,0 +1,148 @@
+document.addEventListener('DOMContentLoaded', function () {
+    const characterList = document.getElementById('location-list');
+    const selectPlanet = document.getElementById('selectPlanet');
+    const selectDimension = document.getElementById('selectDimension');
+    const apiUrl = 'https://rickandmortyapi.com/api/location';
+    const itemsPerPage = 3; // Número de ubicaciones por página
+    let currentPage = 1;
+    let selectedLocationCard = null; // Para almacenar la tarjeta seleccionada previamente
+  
+    // Función para mostrar ubicaciones en la página actual
+    function showLocations(page) {
+      characterList.innerHTML = ''; // Limpiar la lista antes de agregar nuevos elementos
+  
+      // Realizar una solicitud GET a la API
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const startIndex = (page - 1) * itemsPerPage;
+          const endIndex = startIndex + itemsPerPage;
+          const currentLocations = data.results.slice(startIndex, endIndex);
+  
+          // Obtener las opciones únicas de type y dimension de todas las ubicaciones
+          const allTypes = [...new Set(data.results.map(location => location.type))];
+          const allDimensions = [...new Set(data.results.map(location => location.dimension))];
+  
+          // Actualizar las opciones en los selects
+          updateSelectOptions(selectPlanet, allTypes);
+          updateSelectOptions(selectDimension, allDimensions);
+  
+          // Obtener las opciones seleccionadas en los selects
+          const selectedPlanet = getSelectedOption(selectPlanet);
+          const selectedDimension = getSelectedOption(selectDimension);
+  
+          // Filtrar las ubicaciones según las selecciones en los select
+          const filteredLocations = currentLocations.filter(location => {
+            // Verificar si la ubicación cumple con los filtros seleccionados
+            return (selectedPlanet === 'all' || location.type === selectedPlanet) &&
+              (selectedDimension === 'all' || location.dimension === selectedDimension);
+          });
+  
+          // Recorrer las ubicaciones filtradas y mostrar la información en la página
+          filteredLocations.forEach(location => {
+            const locationCard = createLocationCard(location);
+  
+            // Agregar evento de clic para cambiar el estilo al hacer clic en la tarjeta
+            locationCard.addEventListener('click', () => {
+              // Restaurar el estilo de la tarjeta anteriormente seleccionada
+              if (selectedLocationCard) {
+                selectedLocationCard.style.backgroundColor = '';
+                selectedLocationCard.style.color = '';
+              }
+  
+              // Establecer el nuevo estilo y actualizar la tarjeta seleccionada
+              locationCard.style.backgroundColor = 'blue';
+              locationCard.style.color = 'white';
+              selectedLocationCard = locationCard;
+            });
+  
+            characterList.appendChild(locationCard);
+          });
+  
+          // Actualizar el paginador
+          updatePagination(Math.ceil(data.results.length / itemsPerPage));
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+  
+    // Función para crear una tarjeta de ubicación con el contenido
+    function createLocationCard(location) {
+      const locationCard = document.createElement('div');
+      locationCard.classList.add('card', 'mb-2');
+      locationCard.innerHTML = `
+        <!-- Contenido de la tarjeta -->
+        <div class="card-body">
+          <h5 class="card-title">${location.name}</h5>
+          <p class="card-text">Tipo: ${location.type}<br>Dimensión: ${location.dimension}</p>
+        </div>
+      `;
+  
+      return locationCard;
+    }
+  
+    // Función para actualizar las opciones en un select
+    function updateSelectOptions(selectElement, options) {
+      // Limpiar las opciones existentes
+      selectElement.innerHTML = '';
+  
+      // Agregar la opción por defecto
+      const defaultOption = document.createElement('option');
+      defaultOption.value = 'all';
+      defaultOption.textContent = `Cargando ${selectElement.id}...`;
+      selectElement.appendChild(defaultOption);
+  
+      // Agregar las nuevas opciones
+      options.forEach(option => {
+        const newOption = document.createElement('option');
+        newOption.value = option;
+        newOption.textContent = option;
+        selectElement.appendChild(newOption);
+      });
+    }
+  
+    // Función para obtener el valor seleccionado en un select
+    function getSelectedOption(selectElement) {
+      return selectElement.value;
+    }
+  
+    // Función para actualizar el paginador
+    function updatePagination(totalPages) {
+      const paginationInfo = document.getElementById('pagination-info');
+      paginationInfo.textContent = `Página ${currentPage} de ${totalPages}`;
+  
+      // Limpiar los botones de paginación anteriores
+      const paginationContainer = document.getElementById('pagination-container');
+      paginationContainer.innerHTML = '';
+  
+      // Crear botones de paginación
+      for (let i = 1; i <= totalPages; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.textContent = i;
+        pageButton.classList.add('btn', 'btn-outline-primary', 'mr-2');
+        pageButton.addEventListener('click', () => changePage(i));
+        paginationContainer.appendChild(pageButton);
+      }
+    }
+  
+    // Función para cambiar de página al hacer clic en un botón de paginación
+    function changePage(newPage) {
+      currentPage = newPage;
+      showLocations(currentPage);
+    }
+  
+    // Agregar evento al cambio de selección en el select de tipos de planeta
+    selectPlanet.addEventListener('input', () => {
+      currentPage = 1; // Reiniciar la página al cambiar el tipo de planeta
+      showLocations(currentPage);
+    });
+  
+    // Agregar evento al cambio de selección en el select de dimensiones
+    selectDimension.addEventListener('input', () => {
+      currentPage = 1; // Reiniciar la página al cambiar la dimensión
+      showLocations(currentPage);
+    });
+  
+    // Inicializar la primera página al cargar la página
+    showLocations(currentPage);
+  });
+  
